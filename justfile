@@ -27,3 +27,13 @@ fmt:
     @echo "Formatting Go files and organizing imports..."
     @goimports -w .
 
+# Pull the content from the remote repository to the local using the rebase
+pull:
+    @git fetch --all --tags --prune --jobs=10
+    @git pull --rebase
+
+# Push the current branch to the branch of the remote repository.
+push:
+    @git push origin main
+    @git push gitee main
+    @git push gitcode main
