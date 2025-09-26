@@ -6,7 +6,17 @@ import (
 	"path/filepath"
 
 	dem "github.com/zhangymPerson/dev-env-manage/src"
+	"github.com/zhangymPerson/dev-env-manage/src/constant"
+	"github.com/zhangymPerson/dev-env-manage/src/db"
 	"github.com/zhangymPerson/dev-env-manage/src/log"
+)
+
+// 全局变量用于存储构建信息
+// 这些变量将在构建时通过 ldflags 设置
+var (
+	GitCommit = "main" // 默认值
+	GitBranch = "main" // 默认值
+
 )
 
 func main() {
@@ -16,7 +26,7 @@ func main() {
 		panic(err)
 	}
 	logFile := filepath.Join(homeDir, ".dem", "dem.log")
-	if err := log.Configure(true, logFile); err != nil {
+	if err := log.Configure(false, logFile); err != nil {
 		panic(fmt.Sprintf("Failed to configure logger: %v", err))
 	}
 
@@ -29,5 +39,6 @@ func main() {
 
 	// 然后执行其他初始化
 	dem.Init()
-	fmt.Println("hello world")
+	db.InitDB(constant.GetDBFilePath())
+	dem.Options(GitBranch, GitCommit)
 }

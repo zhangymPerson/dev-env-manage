@@ -38,7 +38,7 @@ func Warning(format string, v ...interface{}) {
 }
 
 // Error logs error messages
-func Error(format string, v ...interface{}) {
+func Error(format string, v ...any) {
 	log.Printf("[ERROR] "+format, v...)
 }
 
@@ -84,4 +84,8 @@ func Close() error {
 		return logFile.Close()
 	}
 	return nil
+}
+
+func SetDebug() {
+	IsDebug = true
 }

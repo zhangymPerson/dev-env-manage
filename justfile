@@ -16,11 +16,11 @@ run:
 # Build for multiple platforms
 build:
     @echo "Building for macOS (amd64)..."
-    @GOOS=darwin GOARCH=amd64 go build -o bin/dem-mac-amd64 main.go
+    @GOOS=darwin GOARCH=amd64 go build -ldflags="-X 'main.GitCommit=$(git rev-parse HEAD)' -X 'main.GitBranch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")'" -o bin/dem-mac-amd64 main.go
     @echo "Building for Windows (amd64)..."
-    @GOOS=windows GOARCH=amd64 go build -o bin/dem-win-amd64.exe main.go
+    @GOOS=windows GOARCH=amd64 go build -ldflags="-X 'main.GitCommit=$(git rev-parse HEAD)' -X 'main.GitBranch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")'" -o bin/dem-win-amd64.exe main.go
     @echo "Building for Linux (amd64)..."
-    @GOOS=linux GOARCH=amd64 go build -o bin/dem-linux-amd64 main.go
+    @GOOS=linux GOARCH=amd64 go build -ldflags="-X 'main.GitCommit=$(git rev-parse HEAD)' -X 'main.GitBranch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")'" -o bin/dem-linux-amd64 main.go
 
 # Format the entire project using goimports to organize imports
 fmt:
