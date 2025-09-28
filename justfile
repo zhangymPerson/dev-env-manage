@@ -66,3 +66,8 @@ clear-all:
     @just clear
     @just clear-test
 
+# deploy mac
+deploy-mac:
+    @echo "Clearing all..."
+    @just build
+    @sudo cp ./bin/dem  /usr/local/bin/dem

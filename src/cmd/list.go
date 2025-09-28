@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/zhangymPerson/dev-env-manage/src/db"
+	"github.com/zhangymPerson/dev-env-manage/src/log"
 )
 
 type ConfigItem struct {
@@ -144,9 +144,9 @@ func HandleListProjects() {
 		log.Fatalf("Error iterating projects: %v", err)
 	}
 
-	fmt.Println("Projects:")
+	// fmt.Println("Projects:")
 	for _, project := range projects {
-		fmt.Printf("- %s\n", project)
+		fmt.Printf("%s\n", project)
 	}
 }
 
@@ -188,15 +188,15 @@ func HandleListEnvs(project string) {
 		return
 	}
 
-	// 根据是否有project参数决定输出格式
-	if project != "" && project != "default" {
-		fmt.Printf("Environments for Project '%s':\n", project)
-	} else {
-		fmt.Println("All Environments:")
-	}
+	// // 根据是否有project参数决定输出格式
+	// if project != "" && project != "default" {
+	// 	fmt.Printf("Environments for Project '%s':\n", project)
+	// } else {
+	// 	fmt.Println("All Environments:")
+	// }
 
 	for _, env := range envs {
-		fmt.Printf("- %s\n", env)
+		fmt.Printf("%s\n", env)
 	}
 }
 
@@ -254,8 +254,8 @@ func HandleListModules(project, env string) {
 		title = fmt.Sprintf("Modules for Environment '%s':", env)
 	}
 
-	fmt.Println(title)
+	log.Info(title)
 	for _, module := range modules {
-		fmt.Printf("- %s\n", module)
+		fmt.Printf("%s\n", module)
 	}
 }
