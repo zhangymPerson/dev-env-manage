@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/zhangymPerson/dev-env-manage/src/constant"
 	"github.com/zhangymPerson/dev-env-manage/src/db"
 	"github.com/zhangymPerson/dev-env-manage/src/log"
 	"github.com/zhangymPerson/dev-env-manage/src/models"
@@ -44,7 +45,7 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 	for rows.Next() {
 		var config models.ConfigMaster
 		err = rows.Scan(
-			&config.ProjectCode, &config.EnvCode, &config.ModuleCode,
+			&config.Project, &config.Env, &config.Module,
 			&config.ConfigKey, &config.ConfigValue, &config.ConfigAlias, &config.AutoAlias,
 		)
 		if err != nil {
@@ -65,7 +66,7 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 	for rows.Next() {
 		var config models.ConfigMaster
 		err = rows.Scan(
-			&config.ProjectCode, &config.EnvCode, &config.ModuleCode,
+			&config.Project, &config.Env, &config.Module,
 			&config.ConfigKey, &config.ConfigValue, &config.ConfigAlias, &config.AutoAlias,
 		)
 		if err != nil {
@@ -84,7 +85,7 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 	for rows.Next() {
 		var config models.ConfigMaster
 		err = rows.Scan(
-			&config.ProjectCode, &config.EnvCode, &config.ModuleCode,
+			&config.Project, &config.Env, &config.Module,
 			&config.ConfigKey, &config.ConfigValue, &config.ConfigAlias, &config.AutoAlias,
 		)
 		if err != nil {
@@ -103,16 +104,18 @@ func printInfo(configs []models.ConfigMaster, verbose bool) {
 		return
 	} else if len(configs) == 1 {
 		// 存在且数量为1，只输出value
-		fmt.Printf("%s\n", configs[0].ConfigValue)
+		fmt.Printf("%s\n", constant.SafeStr(configs[0].ConfigValue))
 		os.Exit(0)
 	} else {
 		// 存在且数量不为1，执行详细输出逻辑
 		for _, config := range configs {
 			if verbose {
 				fmt.Printf("Config details:\nProject: %s\nEnv: %s\nModule: %s\nKey: %s\nValue: %s\nAlias: %s\nAutoAlias: %s\n\n",
-					config.ProjectCode, config.EnvCode, config.ModuleCode, config.ConfigKey, config.ConfigValue, config.ConfigAlias, config.AutoAlias)
+					constant.SafeStr(config.Project), constant.SafeStr(config.Env), constant.SafeStr(config.Module),
+					constant.SafeStr(config.ConfigKey), constant.SafeStr(config.ConfigValue),
+					constant.SafeStr(config.ConfigAlias), constant.SafeStr(config.AutoAlias))
 			} else {
-				fmt.Println(config.ConfigValue)
+				fmt.Println(constant.SafeStr(config.ConfigValue))
 			}
 		}
 	}
@@ -132,34 +135,37 @@ func buildQueryConditions(project, env, module, key string) (QueryConditions, []
 
 	// 添加项目条件（如果不是默认值）
 	if project != "default" {
-		conditions = append(conditions, "project_code=?")
+		conditions = append(conditions, "project=?")
 		params = append(params, project)
 	}
 
 	// 添加环境条件（如果不是默认值）
 	if env != "default" {
-		conditions = append(conditions, "env_code=?")
+		conditions = append(conditions, "env=?")
 		params = append(params, env)
 	}
 
 	// 添加模块条件（如果不是默认值）
 	if module != "default" {
-		conditions = append(conditions, "module_code=?")
+		conditions = append(conditions, "module=?")
 		params = append(params, module)
 	}
 
 	// 构建基础查询模板
-	baseQuery := "SELECT project_code, env_code, module_code, config_key, config_value, config_alias, auto_alias FROM config_master WHERE is_deleted=0"
+	baseQuery := "SELECT project, env, module, config_key, config_value, config_alias, auto_alias FROM config_master"
 
-	// 如果有条件，添加AND连接
+	var whereClause string
+	// 如果有条件，构建WHERE子句
 	if len(conditions) > 0 {
-		baseQuery += " AND " + strings.Join(conditions, " AND ")
+		whereClause = " WHERE " + strings.Join(conditions, " AND ") + " AND "
+	} else {
+		whereClause = " WHERE " // 没有条件时直接使用WHERE
 	}
 
 	// 构建三级查询的完整SQL
-	configKeyQuery := baseQuery + " AND config_key=?"
-	configAliasQuery := baseQuery + " AND config_alias=?"
-	autoAliasQuery := baseQuery + " AND auto_alias=?"
+	configKeyQuery := baseQuery + whereClause + "config_key=?"
+	configAliasQuery := baseQuery + whereClause + "config_alias=?"
+	autoAliasQuery := baseQuery + whereClause + "auto_alias=?"
 
 	// 为每个查询添加key参数
 	configKeyParams := append([]interface{}{}, params...)

@@ -15,7 +15,7 @@ func HandleDeleteCommand(project, env, module string, verbose bool, key string) 
 	var configKey string
 	err := db.DB.QueryRow(`
 		SELECT id, config_key FROM config_master 
-		WHERE project_code=? AND env_code=? AND module_code=? AND config_key=? AND is_deleted=0`,
+		WHERE project=? AND env=? AND module=? AND config_key=?`,
 		project, env, module, key,
 	).Scan(&configID, &configKey)
 
@@ -23,7 +23,7 @@ func HandleDeleteCommand(project, env, module string, verbose bool, key string) 
 		// 如果通过config_key找不到，尝试通过config_alias查找
 		err = db.DB.QueryRow(`
 			SELECT id, config_key FROM config_master 
-			WHERE project_code=? AND env_code=? AND module_code=? AND config_alias=? AND is_deleted=0`,
+			WHERE project=? AND env=? AND module=? AND config_alias=?`,
 			project, env, module, key,
 		).Scan(&configID, &configKey)
 
@@ -31,7 +31,7 @@ func HandleDeleteCommand(project, env, module string, verbose bool, key string) 
 			// 如果通过config_alias找不到，尝试通过auto_alias查找
 			err = db.DB.QueryRow(`
 				SELECT id, config_key FROM config_master 
-				WHERE project_code=? AND env_code=? AND module_code=? AND auto_alias=? AND is_deleted=0`,
+				WHERE project=? AND env=? AND module=? AND auto_alias=?`,
 				project, env, module, key,
 			).Scan(&configID, &configKey)
 
@@ -57,14 +57,14 @@ func HandleDeleteCommand(project, env, module string, verbose bool, key string) 
 		return
 	}
 
-	// 执行逻辑删除
+	// 执行物理删除
 	tx, err := db.DB.Begin()
 	if err != nil {
 		log.Fatalf("Failed to begin transaction: %v", err)
 	}
 
 	stmt, err := tx.Prepare(`
-		UPDATE config_master SET is_deleted = 1, updated_time = CURRENT_TIMESTAMP 
+		DELETE FROM config_master 
 		WHERE id = ?`)
 	if err != nil {
 		tx.Rollback()

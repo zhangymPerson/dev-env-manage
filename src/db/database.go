@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/zhangymPerson/dev-env-manage/src/constant"
 	"github.com/zhangymPerson/dev-env-manage/src/log"
 	"github.com/zhangymPerson/dev-env-manage/src/models"
 )
@@ -39,8 +40,8 @@ func AddConfig(config models.ConfigMaster) error {
 	var existingID int
 	err = tx.QueryRow(`
 		SELECT id FROM config_master 
-		WHERE project_code = ? AND env_code = ? AND module_code = ? AND config_key = ? AND is_deleted = 0`,
-		config.ProjectCode, config.EnvCode, config.ModuleCode, config.ConfigKey).Scan(&existingID)
+		WHERE project = ? AND env = ? AND module = ? AND config_key = ?`,
+		config.Project, config.Env, config.Module, config.ConfigKey).Scan(&existingID)
 
 	if err == nil {
 		// 配置已存在，执行更新操作
@@ -71,15 +72,15 @@ func AddConfig(config models.ConfigMaster) error {
 			return errors.New("没有行被更新")
 		}
 
-		log.Info("配置项已更新: 项目[%s] 环境[%s] 模块[%s] 键[%s]", config.ProjectCode, config.EnvCode, config.ModuleCode, config.ConfigKey)
+		log.Info("配置项已更新: 项目[%s] 环境[%s] 模块[%s] 键[%s]", constant.SafeStr(config.Project), constant.SafeStr(config.Env), constant.SafeStr(config.Module), constant.SafeStr(config.ConfigKey))
 	} else if err == sql.ErrNoRows {
 		// 配置不存在，执行插入操作
 		stmt, err := tx.Prepare(`
 			INSERT INTO config_master (
-				project_code, env_code, module_code, config_key, config_value, 
-				config_alias, auto_alias, config_type, is_encrypted, is_deleted,
+				project, env, module, config_key, config_value, 
+				config_alias, auto_alias, config_type, is_encrypted,
 				description, sort_order, created_time, updated_time
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
 		if err != nil {
 			tx.Rollback()
 			log.Error("准备插入语句失败: %v", err)
@@ -88,8 +89,8 @@ func AddConfig(config models.ConfigMaster) error {
 		defer stmt.Close()
 
 		res, err := stmt.Exec(
-			config.ProjectCode, config.EnvCode, config.ModuleCode, config.ConfigKey, config.ConfigValue,
-			config.ConfigAlias, config.AutoAlias, config.ConfigType, config.IsEncrypted, config.IsDeleted,
+			config.Project, config.Env, config.Module, config.ConfigKey, config.ConfigValue,
+			config.ConfigAlias, config.AutoAlias, config.ConfigType, config.IsEncrypted,
 			config.Description, config.SortOrder)
 
 		if err != nil {
@@ -103,7 +104,7 @@ func AddConfig(config models.ConfigMaster) error {
 			return errors.New("没有行被插入")
 		}
 
-		log.Info("配置项已新增: 项目[%s] 环境[%s] 模块[%s] 键[%s]", config.ProjectCode, config.EnvCode, config.ModuleCode, config.ConfigKey)
+		log.Info("配置项已新增: 项目[%s] 环境[%s] 模块[%s] 键[%s]", constant.SafeStr(config.Project), constant.SafeStr(config.Env), constant.SafeStr(config.Module), constant.SafeStr(config.ConfigKey))
 	} else {
 		// 查询过程中出现其他错误
 		tx.Rollback()

@@ -3,6 +3,7 @@ package constant
 import (
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // 基础类型常量
@@ -119,4 +120,24 @@ func GetProjectDir() string {
 		}
 	}
 	return demDir
+}
+
+// safeStr 解引用字符串指针，如果指针为nil则返回空字符串
+func SafeStr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func ToStrPtr(s string) *string {
+	return &s
+}
+
+func ToIntPtr(n int) *int {
+	return &n
+}
+
+func ToTimePtr(t time.Time) *time.Time {
+	return &t
 }

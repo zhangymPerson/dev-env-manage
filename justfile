@@ -15,11 +15,13 @@ run:
 
 # build
 build:
+    @just fmt
     @echo "Building the application..."
     @go build -o bin/dem main.go
 
 # Build for multiple platforms
 build-all:
+    @just fmt
     @echo "Building for macOS (amd64)..."
     @GOOS=darwin GOARCH=amd64 go build -ldflags="-X 'main.GitCommit=$(git rev-parse HEAD)' -X 'main.GitBranch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")'" -o bin/dem-mac-amd64 main.go
     @echo "Building for Windows (amd64)..."
@@ -36,9 +38,11 @@ fmt:
 pull:
     @git fetch --all --tags --prune --jobs=10
     @git pull --rebase
+    @just fmt
 
 # Push the current branch to the branch of the remote repository.
 push:
+    @just fmt
     @git push origin main
     @git push gitee main
     @git push gitcode main

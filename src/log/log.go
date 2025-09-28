@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 )
 
 var (
@@ -12,6 +13,17 @@ var (
 	LogFilePath = ""     // Global log file path
 	logFile     *os.File // File handle for log file
 )
+
+// getCallerInfo 获取调用者信息（文件名和行号）
+func getCallerInfo(skip int) (string, int) {
+	_, file, line, ok := runtime.Caller(skip)
+	if !ok {
+		return "unknown", 0
+	}
+	// 获取文件名而不包含完整路径
+	filename := filepath.Base(file)
+	return filename, line
+}
 
 // Configure sets global logging configuration
 func Configure(debug bool, logPath string) error {
@@ -23,33 +35,39 @@ func Configure(debug bool, logPath string) error {
 // Debug logs debug messages if IsDebug is true
 func Debug(format string, v ...interface{}) {
 	if IsDebug {
-		log.Printf("[DEBUG] "+format, v...)
+		file, line := getCallerInfo(2) // skip Debug function and its caller
+		log.Printf("[%s:%d] [DEBUG] "+format, append([]interface{}{file, line}, v...)...)
 	}
 }
 
 // Info logs informational messages
 func Info(format string, v ...interface{}) {
-	log.Printf("[INFO] "+format, v...)
+	file, line := getCallerInfo(2) // skip Info function and its caller
+	log.Printf("[%s:%d] [INFO] "+format, append([]interface{}{file, line}, v...)...)
 }
 
 // Warning logs warning messages
 func Warning(format string, v ...interface{}) {
-	log.Printf("[WARNING] "+format, v...)
+	file, line := getCallerInfo(2) // skip Warning function and its caller
+	log.Printf("[%s:%d] [WARNING] "+format, append([]interface{}{file, line}, v...)...)
 }
 
 // Error logs error messages
 func Error(format string, v ...any) {
-	log.Printf("[ERROR] "+format, v...)
+	file, line := getCallerInfo(2) // skip Error function and its caller
+	log.Printf("[%s:%d] [ERROR] "+format, append([]any{file, line}, v...)...)
 }
 
 // Fatal logs fatal messages and exits
 func Fatal(format string, v ...interface{}) {
-	log.Fatalf("[FATAL] "+format, v...)
+	file, line := getCallerInfo(2) // skip Fatal function and its caller
+	log.Fatalf("[%s:%d] [FATAL] "+format, append([]interface{}{file, line}, v...)...)
 }
 
 // Fatalf logs fatal messages and exits
 func Fatalf(format string, v ...interface{}) {
-	log.Fatalf("[FATAL] "+format, v...)
+	file, line := getCallerInfo(2) // skip Fatalf function and its caller
+	log.Fatalf("[%s:%d] [FATAL] "+format, append([]interface{}{file, line}, v...)...)
 }
 
 // SetOutput sets the output destination for the logger

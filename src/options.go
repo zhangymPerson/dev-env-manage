@@ -91,9 +91,12 @@ func Options(gitBranch string, gitCommit string) {
 			case "-m":
 				cmd.HandleListModules(*project, *env)
 				return
+			case "-a":
+				cmd.HandleListCommand(*project, *env, *module, *verbose, true)
+				return
 			}
 		}
-		cmd.HandleListCommand(*project, *env, *module, *verbose)
+		cmd.HandleListCommand(*project, *env, *module, *verbose, false)
 	default:
 		fmt.Printf("Unknown command: %s\n", args[0])
 		printHelp()

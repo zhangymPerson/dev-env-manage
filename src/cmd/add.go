@@ -3,7 +3,9 @@ package cmd
 import (
 	"os"
 	"strings"
+	"time"
 
+	"github.com/zhangymPerson/dev-env-manage/src/constant"
 	"github.com/zhangymPerson/dev-env-manage/src/db"
 	"github.com/zhangymPerson/dev-env-manage/src/log"
 	"github.com/zhangymPerson/dev-env-manage/src/models"
@@ -21,17 +23,23 @@ func HandleAddCommand(project, env, module string, key, alias, value string) {
 		alias = generateDefaultAlias(key)
 	}
 
+	currentTime := time.Now()
+
+	// Create config using the updated ConfigMaster struct
 	config := models.ConfigMaster{
-		ProjectCode: project,
-		EnvCode:     env,
-		ModuleCode:  module,
-		ConfigKey:   key,
-		ConfigValue: value,
-		ConfigAlias: alias,
-		AutoAlias:   generateDefaultAlias(key),
-		ConfigType:  "string",
-		IsEncrypted: 0,
-		IsDeleted:   0,
+		Project:     constant.ToStrPtr(project),
+		Env:         constant.ToStrPtr(env),
+		Module:      constant.ToStrPtr(module),
+		ConfigKey:   constant.ToStrPtr(key),
+		ConfigValue: constant.ToStrPtr(value),
+		ConfigAlias: constant.ToStrPtr(alias),
+		AutoAlias:   constant.ToStrPtr(generateDefaultAlias(key)),
+		ConfigType:  constant.ToStrPtr("string"),
+		IsEncrypted: constant.ToIntPtr(1),
+		Description: nil, // Set to nil or provide a value if needed
+		SortOrder:   nil, // Set to nil or provide a value if needed
+		CreatedTime: constant.ToTimePtr(currentTime),
+		UpdatedTime: constant.ToTimePtr(currentTime),
 	}
 
 	if err := db.AddConfig(config); err != nil {

@@ -1,27 +1,24 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
-// ConfigMaster represents the config_master table structure
+// ConfigMaster 映射数据库表 config_master
+// 所有字段均使用指针类型以兼容数据库中的 NULL 值
 type ConfigMaster struct {
-	ID          int       `db:"id" json:"id"`
-	ProjectName string    `db:"project_name" json:"project_name"`
-	ProjectCode string    `db:"project_code" json:"project_code"`
-	EnvName     string    `db:"env_name" json:"env_name"`
-	EnvCode     string    `db:"env_code" json:"env_code"`
-	ModuleName  string    `db:"module_name" json:"module_name"`
-	ModuleCode  string    `db:"module_code" json:"module_code"`
-	ConfigKey   string    `db:"config_key" json:"config_key"`
-	AutoAlias   string    `db:"auto_alias" json:"auto_alias"`
-	ConfigAlias string    `db:"config_alias" json:"config_alias"`
-	ConfigValue string    `db:"config_value" json:"config_value"`
-	ConfigType  string    `db:"config_type" json:"config_type"`
-	Description string    `db:"description" json:"description"`
-	IsEncrypted int       `db:"is_encrypted" json:"is_encrypted"`
-	SortOrder   int       `db:"sort_order" json:"sort_order"`
-	CreatedTime time.Time `db:"created_time" json:"created_time"`
-	UpdatedTime time.Time `db:"updated_time" json:"updated_time"`
-	IsDeleted   int       `db:"is_deleted" json:"is_deleted"`
+	ID        int64   `json:"id"`
+	Project   *string `json:"project,omitempty"`
+	Env       *string `json:"env,omitempty"`
+	Module    *string `json:"module,omitempty"`
+	ConfigKey *string `json:"config_key,omitempty"`
+
+	AutoAlias   *string `json:"auto_alias,omitempty"`
+	ConfigAlias *string `json:"config_alias,omitempty"`
+	ConfigValue *string `json:"config_value,omitempty"`
+	ConfigType  *string `json:"config_type,omitempty"`
+	Description *string `json:"description,omitempty"`
+	IsEncrypted *int    `json:"is_encrypted,omitempty"`
+	SortOrder   *int    `json:"sort_order,omitempty"`
+
+	CreatedTime *time.Time `json:"created_time,omitempty"`
+	UpdatedTime *time.Time `json:"updated_time,omitempty"`
 }
