@@ -13,8 +13,13 @@ check-env:
 run:
     @go run main.go
 
-# Build for multiple platforms
+# build
 build:
+    @echo "Building the application..."
+    @go build -o bin/dem main.go
+
+# Build for multiple platforms
+build-all:
     @echo "Building for macOS (amd64)..."
     @GOOS=darwin GOARCH=amd64 go build -ldflags="-X 'main.GitCommit=$(git rev-parse HEAD)' -X 'main.GitBranch=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")'" -o bin/dem-mac-amd64 main.go
     @echo "Building for Windows (amd64)..."
@@ -37,3 +42,27 @@ push:
     @git push origin main
     @git push gitee main
     @git push gitcode main
+
+# Test: build first, then generate test data
+test:
+    @echo "Building the application..."
+    @just build
+    @echo "Generating test data..."
+    @bash test/generate_test_data.sh
+
+# Clean the build directory
+clear:
+    @echo "Clearing the build directory..."
+    @rm -rf bin
+
+# Clean the test data
+clear-test:
+    @echo "Clearing the test data..."
+    @rm -rf ~/.dem/*.db
+
+# Clear all
+clear-all:
+    @echo "Clearing all..."
+    @just clear
+    @just clear-test
+

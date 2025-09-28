@@ -32,6 +32,8 @@ func Options(gitBranch string, gitCommit string) {
 	version := flag.Bool("version", false, "Show version and build information")
 	alias := flag.String("alias", "", "Specify custom alias for the config")
 	// configPath := flag.String("config", "", "Specify config file path")
+
+	// 解析所有flags
 	flag.Parse()
 
 	if *verbose {
@@ -42,41 +44,47 @@ func Options(gitBranch string, gitCommit string) {
 		if len(gitCommit) > 8 {
 			gitCommit = gitCommit[:8]
 		}
-		printVersionInfo(gitBranch, gitCommit) // 提取为独立函数
+		printVersionInfo(gitBranch, gitCommit)
 		os.Exit(0)
 	}
 
-	// Check for command
-	if len(os.Args) < 2 {
+	// 获取flag解析后的剩余参数
+	args := flag.Args()
+	if len(args) < 1 {
 		printHelp()
 		os.Exit(1)
 	}
 
 	// Handle commands
-	switch os.Args[1] {
+	switch args[0] {
 	case "add", "create":
-		if len(os.Args) < 3 {
+		if len(args) < 3 {
 			fmt.Println("Usage: dem add <key> <value>")
 			os.Exit(1)
 		}
-		key := os.Args[2]
-		value := strings.Join(os.Args[3:], " ")
+		key := args[1]
+		value := strings.Join(args[2:], " ")
 		cmd.HandleAddCommand(*project, *env, *module, key, *alias, value)
 	case "get", "retrieve":
-		if len(os.Args) < 3 {
+		if len(args) < 2 {
 			fmt.Println("Usage: dem get <key>")
 			os.Exit(1)
 		}
-		key := os.Args[2]
+		key := args[1]
 		cmd.HandleGetCommand(*project, *env, *module, *verbose, key)
 	case "delete", "remove":
-		handleDeleteCommand(*project, *env, *module, *verbose)
+		if len(args) < 2 {
+			fmt.Println("Usage: dem delete <key>")
+			os.Exit(1)
+		}
+		key := args[1]
+		cmd.HandleDeleteCommand(*project, *env, *module, *verbose, key)
 	case "list", "ls":
-		handleListCommand(*project, *env, *module, *verbose)
+		cmd.HandleListCommand(*project, *env, *module, *verbose)
 	case "info":
 		handleInfoCommand(*project, *env, *module, *verbose)
 	default:
-		fmt.Printf("Unknown command: %s\n", os.Args[1])
+		fmt.Printf("Unknown command: %s\n", args[0])
 		printHelp()
 		os.Exit(1)
 	}
@@ -107,7 +115,8 @@ Options:
                                  Specify environment type (default: default)
   -m, --module TEXT             Specify module name (default: default)
   -v, --verbose                 Enable verbose output
-  --config PATH                 Specify config file path
+  --alias TEXT                  Specify custom alias for the config
+  -c, --config TEXT             Specify config file path
   --version                     Show version and build information
 
 Commands:
@@ -117,22 +126,6 @@ Commands:
   list, ls                     List all configurations
   info                         Show configuration details`
 	fmt.Println(helpText)
-}
-
-func handleAddCommand(project, env, module string, verbose bool) {
-	// Implementation for add command
-}
-
-func handleGetCommand(project, env, module string, verbose bool) {
-	// Implementation for get command
-}
-
-func handleDeleteCommand(project, env, module string, verbose bool) {
-	// Implementation for delete command
-}
-
-func handleListCommand(project, env, module string, verbose bool) {
-	// Implementation for list command
 }
 
 func handleInfoCommand(project, env, module string, verbose bool) {
