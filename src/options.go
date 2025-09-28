@@ -80,6 +80,19 @@ func Options(gitBranch string, gitCommit string) {
 		key := args[1]
 		cmd.HandleDeleteCommand(*project, *env, *module, *verbose, key)
 	case "list", "ls":
+		if len(args) > 1 {
+			switch args[1] {
+			case "-p":
+				cmd.HandleListProjects()
+				return
+			case "-e":
+				cmd.HandleListEnvs(*project)
+				return
+			case "-m":
+				cmd.HandleListModules(*project, *env)
+				return
+			}
+		}
 		cmd.HandleListCommand(*project, *env, *module, *verbose)
 	default:
 		fmt.Printf("Unknown command: %s\n", args[0])
