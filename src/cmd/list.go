@@ -154,13 +154,13 @@ func HandleListEnvs(project string) {
 	// 基础查询语句
 	query := "SELECT DISTINCT env_code FROM config_master WHERE is_deleted = 0"
 	args := []interface{}{}
-	
+
 	// 只有当project参数不为空且不为默认值时才添加条件
 	if project != "" && project != "default" {
 		query += " AND project_code = ?"
 		args = append(args, project)
 	}
-	
+
 	// 执行查询
 	rows, err := db.DB.Query(query, args...)
 	if err != nil {
@@ -187,14 +187,14 @@ func HandleListEnvs(project string) {
 		fmt.Println("No environments found.")
 		return
 	}
-	
+
 	// 根据是否有project参数决定输出格式
 	if project != "" && project != "default" {
 		fmt.Printf("Environments for Project '%s':\n", project)
 	} else {
 		fmt.Println("All Environments:")
 	}
-	
+
 	for _, env := range envs {
 		fmt.Printf("- %s\n", env)
 	}
@@ -204,19 +204,19 @@ func HandleListModules(project, env string) {
 	// 基础查询语句
 	query := "SELECT DISTINCT module_code FROM config_master WHERE is_deleted = 0"
 	args := []interface{}{}
-	
+
 	// 添加project条件（如果参数有效）
 	if project != "" && project != "default" {
 		query += " AND project_code = ?"
 		args = append(args, project)
 	}
-	
+
 	// 添加env条件（如果参数有效）
 	if env != "" && env != "default" {
 		query += " AND env_code = ?"
 		args = append(args, env)
 	}
-	
+
 	// 执行查询
 	rows, err := db.DB.Query(query, args...)
 	if err != nil {
@@ -243,7 +243,7 @@ func HandleListModules(project, env string) {
 		fmt.Println("No modules found.")
 		return
 	}
-	
+
 	// 根据参数情况决定输出标题
 	title := "All Modules:"
 	if project != "" && project != "default" && env != "" && env != "default" {
@@ -253,7 +253,7 @@ func HandleListModules(project, env string) {
 	} else if env != "" && env != "default" {
 		title = fmt.Sprintf("Modules for Environment '%s':", env)
 	}
-	
+
 	fmt.Println(title)
 	for _, module := range modules {
 		fmt.Printf("- %s\n", module)
