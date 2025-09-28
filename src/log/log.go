@@ -47,6 +47,11 @@ func Fatal(format string, v ...interface{}) {
 	log.Fatalf("[FATAL] "+format, v...)
 }
 
+// Fatalf logs fatal messages and exits
+func Fatalf(format string, v ...interface{}) {
+	log.Fatalf("[FATAL] "+format, v...)
+}
+
 // SetOutput sets the output destination for the logger
 func SetOutput(output io.Writer) {
 	log.SetOutput(output)

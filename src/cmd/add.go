@@ -42,6 +42,9 @@ func HandleAddCommand(project, env, module string, key, alias, value string) {
 
 func generateDefaultAlias(key string) string {
 	parts := strings.Split(key, ".")
+	if len(parts) == 1 {
+		return key
+	}
 	var aliasParts []string
 	for _, part := range parts {
 		if len(part) > 0 {

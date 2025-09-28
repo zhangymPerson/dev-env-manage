@@ -2,16 +2,17 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	"os"
 	"strings"
 
 	"github.com/zhangymPerson/dev-env-manage/src/db"
+	"github.com/zhangymPerson/dev-env-manage/src/log"
 	"github.com/zhangymPerson/dev-env-manage/src/models"
 )
 
 func HandleGetCommand(project, env, module string, verbose bool, key string) {
 	if key == "" {
-		log.Fatal("Usage: dem get <key>")
+		fmt.Println("Usage: dem get <key>")
 	}
 
 	// 构建查询条件和参数
@@ -19,14 +20,14 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 
 	// 输出最终执行的SQL
 	if verbose {
-		fmt.Printf("=== 执行的SQL查询 ===\n")
-		fmt.Printf("第一级查询 (config_key): %s\n", query.configKeyQuery)
-		fmt.Printf("参数: %v\n", append([]interface{}{}, params...))
-		fmt.Printf("第二级查询 (config_alias): %s\n", query.configAliasQuery)
-		fmt.Printf("参数: %v\n", append([]interface{}{}, params...))
-		fmt.Printf("第三级查询 (auto_alias): %s\n", query.autoAliasQuery)
-		fmt.Printf("参数: %v\n", append([]interface{}{}, params...))
-		fmt.Printf("==================\n\n")
+		log.Info("=== 执行的SQL查询 ===\n")
+		log.Info("第一级查询 (config_key): %s\n", query.configKeyQuery)
+		log.Info("参数: %v\n", append([]interface{}{}, params...))
+		log.Info("第二级查询 (config_alias): %s\n", query.configAliasQuery)
+		log.Info("参数: %v\n", append([]interface{}{}, params...))
+		log.Info("第三级查询 (auto_alias): %s\n", query.autoAliasQuery)
+		log.Info("参数: %v\n", append([]interface{}{}, params...))
+		log.Info("==================\n\n")
 	}
 
 	// 三级查询逻辑：config_key -> config_alias -> auto_alias
@@ -52,6 +53,8 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 		configs = append(configs, config)
 	}
 
+	printInfo(configs, verbose)
+
 	// 第二级：查询 config_alias = key
 	rows, err = db.DB.Query(query.configAliasQuery, params...)
 	if err != nil {
@@ -70,7 +73,7 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 		}
 		configs = append(configs, config)
 	}
-
+	printInfo(configs, verbose)
 	// 第三级：查询 auto_alias = key
 	rows, err = db.DB.Query(query.autoAliasQuery, params...)
 	if err != nil {
@@ -89,7 +92,11 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 		}
 		configs = append(configs, config)
 	}
+	printInfo(configs, verbose)
 
+}
+
+func printInfo(configs []models.ConfigMaster, verbose bool) {
 	// 根据匹配数量决定输出格式
 	if len(configs) == 0 {
 		// 不存在匹配项，返回空
@@ -97,6 +104,7 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 	} else if len(configs) == 1 {
 		// 存在且数量为1，只输出value
 		fmt.Printf("%s\n", configs[0].ConfigValue)
+		os.Exit(0)
 	} else {
 		// 存在且数量不为1，执行详细输出逻辑
 		for _, config := range configs {
@@ -104,8 +112,7 @@ func HandleGetCommand(project, env, module string, verbose bool, key string) {
 				fmt.Printf("Config details:\nProject: %s\nEnv: %s\nModule: %s\nKey: %s\nValue: %s\nAlias: %s\nAutoAlias: %s\n\n",
 					config.ProjectCode, config.EnvCode, config.ModuleCode, config.ConfigKey, config.ConfigValue, config.ConfigAlias, config.AutoAlias)
 			} else {
-				fmt.Printf("Project: %s, Env: %s, Module: %s, Value: %s\n",
-					config.ProjectCode, config.EnvCode, config.ModuleCode, config.ConfigValue)
+				fmt.Println(config.ConfigValue)
 			}
 		}
 	}

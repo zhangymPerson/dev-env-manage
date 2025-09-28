@@ -81,8 +81,6 @@ func Options(gitBranch string, gitCommit string) {
 		cmd.HandleDeleteCommand(*project, *env, *module, *verbose, key)
 	case "list", "ls":
 		cmd.HandleListCommand(*project, *env, *module, *verbose)
-	case "info":
-		handleInfoCommand(*project, *env, *module, *verbose)
 	default:
 		fmt.Printf("Unknown command: %s\n", args[0])
 		printHelp()
@@ -126,19 +124,4 @@ Commands:
   list, ls                     List all configurations
   info                         Show configuration details`
 	fmt.Println(helpText)
-}
-
-func handleInfoCommand(project, env, module string, verbose bool) {
-	// Implementation for info command
-}
-
-func generateDefaultAlias(key string) string {
-	parts := strings.Split(key, ".")
-	var aliasParts []string
-	for _, part := range parts {
-		if len(part) > 0 {
-			aliasParts = append(aliasParts, string(part[0]))
-		}
-	}
-	return strings.Join(aliasParts, ".")
 }
