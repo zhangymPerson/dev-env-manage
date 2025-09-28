@@ -138,6 +138,50 @@ Commands:
   get, retrieve                Get key-value configuration (Usage: dem get <key>)
   delete, remove               Delete key-value configuration
   list, ls                     List all configurations
-  info                         Show configuration details`
+  info                         Show configuration details
+
+Examples:
+  
+  # Basic configuration management
+  dem add database.host localhost
+  dem get database.host
+  dem delete database.host
+  
+  # Adding configurations with custom alias
+  dem --alias db_host add database.host localhost
+  dem get db_host
+  
+  # Working with specific project, environment, and module
+  dem -p myproject -e dev -m database add database.host localhost
+  dem -p myproject -e dev -m database get database.host
+  dem -p myproject -e dev -m database delete database.host
+  
+  # Adding complex configuration values (including spaces)
+  dem add app.description "My Application Description"
+  dem add app.features "feature1, feature2, feature3"
+  
+  # List operations
+  dem list                           # List all configurations
+  dem list -a                        # List with project/env/module details
+  dem list -p                        # List all projects
+  dem list -e                        # List all environments for current project
+  dem list -m                        # List all modules for current project and environment
+  
+  # Verbose output
+  dem -v add app.debug true
+  dem -v get app.debug
+  
+  # Working with different environments
+  dem -e dev add app.url http://localhost:8080
+  dem -e prod add app.url https://myapp.com
+  dem -e dev get app.url
+  dem -e prod get app.url
+  
+  # Working with different modules
+  dem -m redis add redis.host redis-server
+  dem -m database add db.host postgresql-server
+  dem -m redis list
+  dem -m database list
+`
 	fmt.Println(helpText)
 }

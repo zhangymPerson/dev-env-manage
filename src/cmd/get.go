@@ -118,6 +118,7 @@ func printInfo(configs []models.ConfigMaster, verbose bool) {
 				fmt.Println(constant.SafeStr(config.ConfigValue))
 			}
 		}
+		os.Exit(0)
 	}
 }
 
