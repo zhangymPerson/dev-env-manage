@@ -79,7 +79,6 @@ func HandleListCommand(project, env, module string, verbose bool, show bool) {
 }
 
 func printSimpleList(configs []ConfigItem, show bool) {
-	fmt.Print(show)
 	// 简单输出：只显示config_key
 	for _, config := range configs {
 		if show {
